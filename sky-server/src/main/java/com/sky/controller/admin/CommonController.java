@@ -18,17 +18,17 @@ import java.util.UUID;
 @RequestMapping("/admin/common")
 @Api(tags = "文件更新")
 @Slf4j
-public class FileUploadController {
+public class CommonController {
     private final AliOssUtil aliOssUtil;
 
     @Autowired
-    public FileUploadController(AliOssUtil aliOssUtil) {
+    public CommonController(AliOssUtil aliOssUtil) {
         this.aliOssUtil = aliOssUtil;
     }
 
     @PostMapping("/upload")
     @ApiOperation(value = "文件上传")
-    public Result<String> upload(MultipartFile file){
+    public Result<String> fileUpload(MultipartFile file){
         log.info("文件上传，参数：{}", file);
         try{
             //获取文件名

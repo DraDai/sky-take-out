@@ -1,12 +1,15 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
-import com.sky.constant.AutoFillConstant;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
-import org.apache.ibatis.annotations.Insert;
+import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface DishMapper {
@@ -21,4 +24,17 @@ public interface DishMapper {
 
     @AutoFill(OperationType.INSERT)
     void insertOne(Dish dish);
+
+    Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    @AutoFill(OperationType.UPDATE)
+    void updateById(Dish build);
+
+
+    DishVO selectById(Long id);
+
+    @Select("select * from dish where category_id = #{categoryId}")
+    List<Dish> selectByCategoryId(Long categoryId);
+
+    void deleteBatch(List<Long> ids);
 }
