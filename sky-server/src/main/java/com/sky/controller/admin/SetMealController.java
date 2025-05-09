@@ -5,6 +5,7 @@ import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetMealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
-@RestController
+@RestController("AdminSetMealController")
 @RequestMapping("/admin/setmeal")
 @Api(tags = "套餐管理")
 public class SetMealController {
@@ -72,4 +75,7 @@ public class SetMealController {
         setMealService.delete(ids);
         return Result.success();
     }
+
+
+
 }

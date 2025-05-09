@@ -37,4 +37,11 @@ public interface DishMapper {
     List<Dish> selectByCategoryId(Long categoryId);
 
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 动态条件查询菜品
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
 }

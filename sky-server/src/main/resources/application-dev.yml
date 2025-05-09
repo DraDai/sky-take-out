@@ -11,3 +11,13 @@ sky:
     access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
     endpoint: ${OSS_ENDPOINT:}
     bucket-name: ${OSS_BUCKET_NAME:}
+  wechat:
+    appid: wxbba000bf5f02abf7
+    secret: 74588870ad69af6ae441d59bcfe3c040
+
+spring:
+  redis:
+    host: 192.168.24.133
+    port: 6379
+    password: 2004long
+    database: 0
