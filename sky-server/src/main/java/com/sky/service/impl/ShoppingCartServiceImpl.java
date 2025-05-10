@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -79,5 +80,42 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             //更新购物车
             shoppingCartMapper.updateNumberById(cart);
         }
+    }
+
+    @Override
+    public List<ShoppingCart> list() {
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(BaseContext.getCurrentId()).build();
+        return shoppingCartMapper.selectBatchByUserId(shoppingCart);
+    }
+
+    @Override
+    public void sub(ShoppingCartDTO shoppingCartDTO) {
+        //动态查询购物车
+        ShoppingCart shoppingCart = new ShoppingCart();
+        Long userId = BaseContext.getCurrentId();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        shoppingCart.setUserId(userId);
+        //根据用户id和菜品id或套餐id或口味数据查询购物车
+        ShoppingCart cart = shoppingCartMapper.selectOne(shoppingCart);
+
+        //如果数据库内有购物车数据
+        if(cart != null) {
+            Integer number = cart.getNumber();
+            //如果数量大于1，则减少数量
+            if (number > 1) {
+                cart.setNumber(number - 1);
+                //更新购物车
+                shoppingCartMapper.updateNumberById(cart);
+            } else {
+                //删除购物车
+                shoppingCartMapper.deleteById(cart.getId());
+            }
+        }
+    }
+
+    @Override
+    public void clean() {
+        shoppingCartMapper.deleteByUserId(BaseContext.getCurrentId());
     }
 }
