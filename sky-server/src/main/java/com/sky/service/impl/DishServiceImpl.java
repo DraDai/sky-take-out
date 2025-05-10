@@ -3,6 +3,7 @@ package com.sky.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
+import com.sky.constant.RedisKeyConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
@@ -20,6 +21,7 @@ import com.sky.vo.DishItemVO;
 import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +33,14 @@ public class DishServiceImpl implements DishService {
     private final DishMapper dishMapper;
     private final DishFlavorMapper dishFlavorMapper;
     private final SetmealDishMapper setmealDishMapper;
+    private final RedisTemplate redisTemplate;
 
     @Autowired
-    public DishServiceImpl(DishMapper dishMapper, DishFlavorMapper dishFlavorMapper, SetmealDishMapper setmealDishMapper) {
+    public DishServiceImpl(DishMapper dishMapper, DishFlavorMapper dishFlavorMapper, SetmealDishMapper setmealDishMapper, RedisTemplate redisTemplate) {
         this.dishMapper = dishMapper;
         this.dishFlavorMapper = dishFlavorMapper;
         this.setmealDishMapper = setmealDishMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -131,6 +135,7 @@ public class DishServiceImpl implements DishService {
      * @return
      */
     public List<DishVO> listWithFlavor(Dish dish) {
+
         List<Dish> dishList = dishMapper.list(dish);
 
         List<DishVO> dishVOList = new ArrayList<>();
@@ -147,6 +152,31 @@ public class DishServiceImpl implements DishService {
         }
 
         return dishVOList;
+    }
+
+    /**
+     * 根据分类id查询启售中的菜品
+     * @param categoryId 分类id
+     * @return
+     */
+    public List<DishVO> listWithFlavor(Long categoryId){
+        //从缓存中查询
+        String key = RedisKeyConstant.DISH_LIST_PREFIX + categoryId;
+        List<DishVO> dishVOS = (List<DishVO>) redisTemplate.opsForValue().get(key);
+
+        //缓存中存在数据
+        if(dishVOS != null && !dishVOS.isEmpty()){
+            return dishVOS;
+        }
+
+        //缓存中不存在数据
+        Dish dish = new Dish();
+        dish.setCategoryId(categoryId);
+        dish.setStatus(StatusConstant.ENABLE);
+        dishVOS = listWithFlavor(dish);
+        redisTemplate.opsForValue().set(key, dishVOS);
+
+        return dishVOS;
     }
 
 }

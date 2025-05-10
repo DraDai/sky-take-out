@@ -1,11 +1,13 @@
 package com.sky.controller.admin;
 
+import com.sky.constant.RedisKeyConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
+import com.sky.service.RedisCacheService;
 import com.sky.vo.DishVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,10 +25,12 @@ import java.util.List;
 public class DishController {
     private static final Logger log = LoggerFactory.getLogger(DishController.class);
     private final DishService dishService;
+    private final RedisCacheService redisCacheService;
 
     @Autowired
-    public DishController(DishService dishService) {
+    public DishController(DishService dishService, RedisCacheService redisCacheService) {
         this.dishService = dishService;
+        this.redisCacheService = redisCacheService;
     }
 
     @PostMapping
@@ -34,6 +38,10 @@ public class DishController {
     public Result add(@RequestBody DishDTO dishDTO){
         log.info("添加菜品，参数：{}", dishDTO);
         dishService.addWithFlavor(dishDTO);
+
+        // 清除缓存
+        String key = RedisKeyConstant.DISH_LIST_PREFIX + dishDTO.getCategoryId();
+        redisCacheService.cleanCache(key);
         return Result.success();
     }
 
@@ -50,6 +58,10 @@ public class DishController {
     public Result changeStatus(@PathVariable Integer status, @RequestParam Long id){
         log.info("修改菜品状态，参数：{}，{}", status, id);
         dishService.changeStatus(status, id);
+
+        // 清除缓存
+        String key = RedisKeyConstant.DISH_LIST_PREFIX + "*";
+        redisCacheService.cleanCache(key);
         return Result.success();
     }
 
@@ -74,6 +86,11 @@ public class DishController {
     public Result editWithFlavor(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品，参数：{}", dishDTO);
         dishService.editWithFlavor(dishDTO);
+
+        // 清除缓存
+        // 清除缓存
+        String key = RedisKeyConstant.DISH_LIST_PREFIX + "*";
+        redisCacheService.cleanCache(key);
         return Result.success();
     }
 
@@ -82,6 +99,10 @@ public class DishController {
     public Result deleteBatch(@RequestParam List<Long> ids) {
         log.info("批量删除菜品，参数：{}", ids);
         dishService.deleteBatch(ids);
+
+        // 清除缓存
+        String key = RedisKeyConstant.DISH_LIST_PREFIX + "*";
+        redisCacheService.cleanCache(key);
         return Result.success();
     }
 }
