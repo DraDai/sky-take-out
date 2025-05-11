@@ -31,7 +31,6 @@ public class ShoppingCartController {
 
     @PostMapping("/add")
     @ApiOperation(value = "添加购物车")
-    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     public Result add(@RequestBody ShoppingCartDTO shoppingCartDTO){
         log.info("添加购物车：{}", shoppingCartDTO);
         shoppingCartService.add(shoppingCartDTO);
@@ -40,7 +39,6 @@ public class ShoppingCartController {
 
     @GetMapping("/list")
     @ApiOperation(value = "查询购物车")
-    @Cacheable(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     public Result<List<ShoppingCart>> list() {
         log.info("查询购物车");
         List<ShoppingCart> shoppingCartList = shoppingCartService.list();
@@ -48,7 +46,6 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/sub")
-    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     @ApiOperation(value = "减少购物车")
     public Result sub(@RequestBody ShoppingCartDTO shoppingCartDTO) {
         log.info("减少购物车：{}", shoppingCartDTO);
@@ -57,7 +54,6 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/clean")
-    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     @ApiOperation(value = "清空购物车")
     public Result clean() {
         log.info("清空购物车");

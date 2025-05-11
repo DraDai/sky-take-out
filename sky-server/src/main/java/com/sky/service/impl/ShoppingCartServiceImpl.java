@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.sky.constant.RedisKeyConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.ShoppingCart;
@@ -12,8 +13,9 @@ import com.sky.vo.SetmealVO;
 import io.swagger.models.auth.In;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,6 +36,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     public void add(ShoppingCartDTO shoppingCartDTO) {
         //动态查询购物车
         ShoppingCart shoppingCart = new ShoppingCart();
@@ -83,6 +86,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @Cacheable(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     public List<ShoppingCart> list() {
         ShoppingCart shoppingCart = ShoppingCart.builder()
                 .userId(BaseContext.getCurrentId()).build();
@@ -90,6 +94,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     public void sub(ShoppingCartDTO shoppingCartDTO) {
         //动态查询购物车
         ShoppingCart shoppingCart = new ShoppingCart();
@@ -115,6 +120,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
     public void clean() {
         shoppingCartMapper.deleteByUserId(BaseContext.getCurrentId());
     }
