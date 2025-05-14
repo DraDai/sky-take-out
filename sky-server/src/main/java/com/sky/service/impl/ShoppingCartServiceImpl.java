@@ -124,4 +124,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void clean() {
         shoppingCartMapper.deleteByUserId(BaseContext.getCurrentId());
     }
+
+    @Override
+    @CacheEvict(value = RedisKeyConstant.SHOPPINGCART_LIST_PREFIX, key = "T(com.sky.context.BaseContext).getCurrentId()")
+    public void batchAdd(List<ShoppingCart> shoppingCarts) {
+        shoppingCartMapper.insertBatch(shoppingCarts);
+    }
 }

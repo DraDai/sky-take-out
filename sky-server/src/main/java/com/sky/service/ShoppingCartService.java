@@ -29,4 +29,9 @@ public interface ShoppingCartService {
      * 清空购物车
      */
     void clean();
+
+    /**
+     * 批量添加购物车
+     */
+    void batchAdd(List<ShoppingCart> shoppingCarts);
 }

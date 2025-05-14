@@ -10,4 +10,15 @@
             (#{item.name}, #{item.image}, #{item.orderId}, #{item.dishId}, #{item.setmealId}, #{item.dishFlavor}, #{item.amount})
         </foreach>
     </insert>
+    <select id="selectNameByOrderIds" resultType="com.sky.dto.OrderDetailNameDTO">
+        SELECT od.order_id, GROUP_CONCAT(od.name) AS name
+        FROM sky_take_out.order_detail od
+        WHERE od.order_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        GROUP BY od.order_id
+    </select>
+
+
 </mapper>
