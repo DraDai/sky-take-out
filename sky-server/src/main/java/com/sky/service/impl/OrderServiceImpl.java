@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -24,6 +25,7 @@ import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketService;
 import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +33,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,8 +51,9 @@ public class OrderServiceImpl implements OrderService {
     private final WeChatPayUtil weChatPayUtil;
     private final GaoDeUtil gaoDeUtil;
     private final GaoDeProperties gaoDeProperties;
+    private final WebSocketService webSocketService;
 
-    public OrderServiceImpl(OrderMapper orderMapper, ShoppingCartService shoppingCartService, OrderDetailMapper orderDetailMapper, AddressBookMapper addressBookMapper, WeChatPayUtil weChatPayUtil, GaoDeUtil gaoDeUtil, GaoDeProperties gaoDeProperties) {
+    public OrderServiceImpl(OrderMapper orderMapper, ShoppingCartService shoppingCartService, OrderDetailMapper orderDetailMapper, AddressBookMapper addressBookMapper, WeChatPayUtil weChatPayUtil, GaoDeUtil gaoDeUtil, GaoDeProperties gaoDeProperties, WebSocketService webSocketService) {
         this.orderMapper = orderMapper;
         this.shoppingCartService = shoppingCartService;
         this.orderDetailMapper = orderDetailMapper;
@@ -56,6 +61,7 @@ public class OrderServiceImpl implements OrderService {
         this.weChatPayUtil = weChatPayUtil;
         this.gaoDeUtil = gaoDeUtil;
         this.gaoDeProperties = gaoDeProperties;
+        this.webSocketService = webSocketService;
     }
 
     @Override
@@ -95,14 +101,23 @@ public class OrderServiceImpl implements OrderService {
 
         orders.setAddress(address);
         orders.setOrderTime(LocalDateTime.now());
-        orders.setPayStatus(Orders.UN_PAID);
-        orders.setStatus(Orders.PENDING_PAYMENT);
+        orders.setPayStatus(Orders.PAID);
+        orders.setStatus(Orders.TO_BE_CONFIRMED);
         orders.setNumber(String.valueOf(System.currentTimeMillis()));
         orders.setPhone(addressBook.getPhone());
         orders.setConsignee(addressBook.getConsignee());
         orders.setUserId(BaseContext.getCurrentId());
+
         orderMapper.insertOne(orders);
 
+        // 通过websocket向客户端浏览器推送消息
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 1); // 1表示来单提醒,2表示客户催单
+        map.put("orderId", orders.getId());
+        map.put("content", "新订单来了,请及时处理,订单号:"+orders.getId());
+
+        String jsonString = JSON.toJSONString(map);
+        webSocketService.sendToAllClient(jsonString);
 
         //将购物车数据转换为订单明细数据
         List<OrderDetail> orderDetails = shoppingCarts.stream().map(shoppingCart ->
