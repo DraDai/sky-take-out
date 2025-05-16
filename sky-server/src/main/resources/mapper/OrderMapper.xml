@@ -108,4 +108,9 @@
         </foreach>
         GROUP BY status
     </select>
+    <select id="selectTurnoverByDate" resultType="java.lang.Integer">
+        SELECT SUM(amount) AS turnover
+        FROM sky_take_out.orders
+        WHERE order_time &gt; #{start} AND order_time &lt; #{end} AND status = 5
+    </select>
 </mapper>

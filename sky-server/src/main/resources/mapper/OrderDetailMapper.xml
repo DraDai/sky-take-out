@@ -20,5 +20,22 @@
         GROUP BY od.order_id
     </select>
 
+    <resultMap id="goodsSalesMap" type="com.sky.dto.GoodsSalesDTO">
+        <result property="name" column="name"/>
+        <result property="number" column="count"/>
+    </resultMap>
+
+    <select id="selectGoodsSalesByOrderIds" resultMap="goodsSalesMap">
+        SELECT name, COUNT(name) AS count
+        FROM sky_take_out.order_detail
+        WHERE order_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        GROUP BY name
+        ORDER BY count DESC
+        LIMIT 0, 10
+    </select>
+
 
 </mapper>

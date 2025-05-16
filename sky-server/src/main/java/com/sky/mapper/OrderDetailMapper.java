@@ -1,5 +1,6 @@
 package com.sky.mapper;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrderDetailNameDTO;
 import com.sky.entity.OrderDetail;
 import org.apache.ibatis.annotations.*;
@@ -21,4 +22,11 @@ public interface OrderDetailMapper {
 
 
     List<OrderDetailNameDTO> selectNameByOrderIds(List<Long> ids);
+
+    /**
+     * 根据订单id查询top10商品
+     * @param ids
+     * @return
+     */
+    List<GoodsSalesDTO> selectGoodsSalesByOrderIds(List<Long> ids);
 }

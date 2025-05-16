@@ -7,4 +7,14 @@
         INSERT INTO sky_take_out.user (openid, name, phone, sex, id_number, avatar, create_time)
         VALUES (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime})
     </insert>
+    <select id="selectDayNewUserCount" resultType="java.lang.Integer">
+        SELECT IFNULL(count(id), 0) AS count
+        FROM sky_take_out.user
+        WHERE create_time &gt; #{startTime} AND create_time &lt; #{endTime}
+    </select>
+    <select id="selectAllUserCount" resultType="java.lang.Integer">
+        SELECT IFNULL(count(id), 0) AS count
+        FROM sky_take_out.user
+        WHERE create_time &lt; #{endTime}
+    </select>
 </mapper>
